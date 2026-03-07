@@ -6,6 +6,8 @@ from orchestrator.nodes.runner import run_build
 from orchestrator.nodes.fixer import run_fixer
 from orchestrator.nodes.human_gate import human_validation
 from orchestrator.nodes.reviewer import run_reviewer
+import sys
+sys.stdout.reconfigure(encoding="utf-8")
 
 
 MAX_ITER = 5
@@ -35,7 +37,7 @@ def run_round():
             print("Build successful")
             break
 
-        print("Build failed → fixing")
+        print("Build failed - fixing")
 
         run_fixer(logs)
 
