@@ -10,6 +10,7 @@
     "test": "vitest"
   },
   "devDependencies": {
+    "@types/three": "^0.183.1",
     "eslint": "^10.0.2",
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
