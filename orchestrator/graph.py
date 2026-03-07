@@ -2,9 +2,13 @@ from orchestrator.nodes.planner import run_planner
 from orchestrator.nodes.builder import run_builder
 from orchestrator.nodes.code_writer import run_code_writer
 from orchestrator.nodes.test_writer import run_test_writer
-from orchestrator.nodes.runner import run_tests
+from orchestrator.nodes.runner import run_build
+from orchestrator.nodes.fixer import run_fixer
 from orchestrator.nodes.human_gate import human_validation
 from orchestrator.nodes.reviewer import run_reviewer
+
+
+MAX_ITER = 5
 
 
 def run_round():
@@ -21,17 +25,29 @@ def run_round():
     print("---- TEST WRITER ----")
     run_test_writer()
 
-    print("---- RUNNER ----")
-    run_tests()
+    for i in range(MAX_ITER):
+
+        print("---- BUILD ATTEMPT", i + 1, "----")
+
+        code, logs = run_build()
+
+        if code == 0:
+            print("Build successful")
+            break
+
+        print("Build failed → fixing")
+
+        run_fixer(logs)
+
+    else:
+        print("Factory could not fix build automatically")
+        return
 
     decision = human_validation()
 
     if decision == "GO":
-        print("---- REVIEWER ----")
         run_reviewer()
-        print("Round complete.")
-    else:
-        print("Round blocked.")
+        print("Round complete")
 
 
 if __name__ == "__main__":

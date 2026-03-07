@@ -1,34 +1,23 @@
-import * as THREE from 'three';
-
+```typescript
 export class GameLoop {
-  private scene: THREE.Scene;
-  private camera: THREE.PerspectiveCamera;
-  private renderer: THREE.WebGLRenderer;
-  private clock: THREE.Clock;
+  private entities: any[] = [];
+  private running: boolean = false;
 
-  constructor(scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer) {
-    this.scene = scene;
-    this.camera = camera;
-    this.renderer = renderer;
-    this.clock = new THREE.Clock();
+  public addEntity(entity: any) {
+    this.entities.push(entity);
   }
 
-  public start(): void {
-    const animate = () => {
-      const delta = this.clock.getDelta();
-      this.update(delta);
-      this.render();
-      requestAnimationFrame(animate);
-    };
-
-    animate();
+  public start() {
+    this.running = true;
+    this.animate();
   }
 
-  private update(delta: number): void {
-    // Update game logic here
-  }
+  private animate() {
+    if (!this.running) return;
 
-  private render(): void {
-    this.renderer.render(this.scene, this.camera);
+    requestAnimationFrame(() => this.animate());
+
+    this.entities.forEach(entity => entity.update());
   }
 }
+```

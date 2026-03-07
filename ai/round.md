@@ -1,205 +1,72 @@
-Sure! Let's start by setting up the basic structure of the project. We'll create the necessary TypeScript files and initialize the Three.js scene, camera, and renderer. Additionally, we'll create a simple game loop to continuously update and render the scene.
+To get started with the project, we'll create the initial code files for the Three.js scene, the game loop, and the engine bootstrap. Here’s how you can set up the necessary files:
 
-### Step 1: Initialize the Project
-1. **Create a New Project Directory**:
-   ```bash
-   mkdir maze-game
-   cd maze-game
-   ```
+### Directory Structure
+```
+src/
+├── index.ts
+├── scene.ts
+├── gameLoop.ts
+└── engine.ts
+```
 
-2. **Initialize a New Node.js Project**:
-   ```bash
-   npm init -y
-   ```
-
-3. **Install Three.js and TypeScript as Dependencies**:
-   ```bash
-   npm install three
-   npm install --save-dev typescript
-   ```
-
-4. **Create the `tsconfig.json` File**:
-   ```json
-   {
-     "compilerOptions": {
-       "target": "ES6",
-       "module": "commonjs",
-       "outDir": "./dist",
-       "strict": true,
-       "esModuleInterop": true,
-       "skipLibCheck": true,
-       "forceConsistentCasingInFileNames": true
-     },
-     "include": ["src/**/*.ts"],
-     "exclude": ["node_modules"]
-   }
-   ```
-
-5. **Create the `src` Directory and `index.ts` File**:
-   ```bash
-   mkdir src
-   touch src/index.ts
-   ```
-
-### Step 2: Create the Basic Scene and Game Loop
-1. **Edit the `src/index.ts` File**:
-   ```typescript
-   import * as THREE from 'three';
-
-   // Create the scene
-   const scene = new THREE.Scene();
-
-   // Create the camera
-   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-   camera.position.z = 5;
-
-   // Create the renderer
-   const renderer = new THREE.WebGLRenderer();
-   renderer.setSize(window.innerWidth, window.innerHeight);
-   document.body.appendChild(renderer.domElement);
-
-   // Handle window resize
-   window.addEventListener('resize', () => {
-     camera.aspect = window.innerWidth / window.innerHeight;
-     camera.updateProjectionMatrix();
-     renderer.setSize(window.innerWidth, window.innerHeight);
-   });
-
-   // Game loop function
-   function animate() {
-     requestAnimationFrame(animate);
-
-     // Update the camera
-     camera.lookAt(0, 1, 0); // Example target
-
-     // Render the scene
-     renderer.render(scene, camera);
-   }
-
-   // Initialize the game loop
-   animate();
-   ```
-
-### Step 3: Add a Simple Maze Grid and Player Cube
-1. **Define a Simple Maze Grid**:
-   ```typescript
-   // Maze grid
-   const mazeGeometry = new THREE.BoxGeometry(1, 1, 1);
-   const mazeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
-   const maze = new THREE.Mesh(mazeGeometry, mazeMaterial);
-   maze.position.set(0, 0, 0);
-   scene.add(maze);
-   ```
-
-2. **Add a Player Cube**:
-   ```typescript
-   // Player cube
-   const playerGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-   const playerMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-   const player = new THREE.Mesh(playerGeometry, playerMaterial);
-   player.position.set(0, 1, 0);
-   scene.add(player);
-   ```
-
-### Step 4: Implement WASD Movement
-1. **Handle Keyboard Input**:
-   ```typescript
-   const moveSpeed = 0.1;
-
-   function movePlayer(event: KeyboardEvent) {
-     switch (event.key) {
-       case 'w':
-         player.position.z += moveSpeed;
-         break;
-       case 's':
-         player.position.z -= moveSpeed;
-         break;
-       case 'a':
-         player.position.x -= moveSpeed;
-         break;
-       case 'd':
-         player.position.x += moveSpeed;
-         break;
-     }
-   }
-
-   window.addEventListener('keydown', movePlayer);
-   ```
-
-### Final Implementation
-Here's the complete `src/index.ts` file with all the steps combined:
+### 1. `src/index.ts`
+This file will be the entry point of your application. It will import and bootstrap the game.
 
 ```typescript
+// src/index.ts
+import { initEngine } from './engine';
+
+initEngine();
+```
+
+### 2. `src/scene.ts`
+This file will handle the creation of the Three.js scene, camera, and renderer.
+
+```typescript
+// src/scene.ts
 import * as THREE from 'three';
 
-// Create the scene
-const scene = new THREE.Scene();
-
-// Create the camera
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
-
-// Create the renderer
-const renderer = new THREE.WebGLRenderer();
+export const scene = new THREE.Scene();
+export const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+export const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Handle window resize
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
+camera.position.z = 5;
+```
 
-// Maze grid
-const mazeGeometry = new THREE.BoxGeometry(1, 1, 1);
-const mazeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
-const maze = new THREE.Mesh(mazeGeometry, mazeMaterial);
-maze.position.set(0, 0, 0);
-scene.add(maze);
+### 3. `src/gameLoop.ts`
+This file will handle the game loop, which will continuously render the scene.
 
-// Player cube
-const playerGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-const playerMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-const player = new THREE.Mesh(playerGeometry, playerMaterial);
-player.position.set(0, 1, 0);
-scene.add(player);
+```typescript
+// src/gameLoop.ts
+import { animate } from './engine';
 
-// Handle keyboard input
-const moveSpeed = 0.1;
-function movePlayer(event: KeyboardEvent) {
-  switch (event.key) {
-    case 'w':
-      player.position.z += moveSpeed;
-      break;
-    case 's':
-      player.position.z -= moveSpeed;
-      break;
-    case 'a':
-      player.position.x -= moveSpeed;
-      break;
-    case 'd':
-      player.position.x += moveSpeed;
-      break;
-  }
-}
-
-window.addEventListener('keydown', movePlayer);
-
-// Game loop function
-function animate() {
-  requestAnimationFrame(animate);
-
-  // Update the camera
-  camera.lookAt(0, 1, 0); // Example target
-
-  // Render the scene
-  renderer.render(scene, camera);
-}
-
-// Initialize the game loop
 animate();
 ```
 
-### Conclusion
-This setup provides a basic structure for creating a playable maze game prototype using TypeScript and Three.js. You can further enhance the game by adding more features, such as collision detection, enemy AI, and scoring.
+### 4. `src/engine.ts`
+This file will contain the engine bootstrap and any other initialization code.
+
+```typescript
+// src/engine.ts
+import { scene, camera, renderer } from './scene';
+import { animate } from './gameLoop';
+
+export function initEngine() {
+  // Additional initialization code can go here
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+}
+```
+
+### Summary
+- **`index.ts`**: The entry point of the application, which initializes the engine.
+- **`scene.ts`**: Handles the creation of the Three.js scene, camera, and renderer.
+- **`gameLoop.ts`**: Contains the game loop function that continuously renders the scene.
+- **`engine.ts`**: Contains the engine bootstrap and any additional initialization code.
+
+These files provide a basic structure for your Three.js game project. You can now proceed to add the maze grid and player functionality in subsequent steps.
