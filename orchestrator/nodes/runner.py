@@ -7,24 +7,28 @@ def run_tests():
     npm = shutil.which("npm") or shutil.which("npm.cmd")
 
     if not npm:
-        raise RuntimeError("npm not found in PATH")
+        raise RuntimeError("npm not found")
 
     print("Using npm:", npm)
 
     print("Running build...")
 
-    subprocess.run(
+    build = subprocess.run(
         [npm, "run", "build"],
-        cwd="game",
-        check=False
+        cwd="game"
     )
+
+    if build.returncode != 0:
+        raise RuntimeError("Build failed")
 
     print("Running tests...")
 
-    subprocess.run(
+    tests = subprocess.run(
         [npm, "run", "test"],
-        cwd="game",
-        check=False
+        cwd="game"
     )
+
+    if tests.returncode != 0:
+        raise RuntimeError("Tests failed")
 
     print("Runner finished.")

@@ -1,8 +1,10 @@
 from orchestrator.models import ask_llm
 from pathlib import Path
+import re
 
 GAME_SRC = Path("game/src")
 AI_PATH = Path("ai")
+
 
 def run_code_writer():
 
@@ -11,27 +13,56 @@ def run_code_writer():
     prompt = f"""
 You are a senior TypeScript game engine developer.
 
-Write minimal working code for a Three.js maze game.
+Create minimal working code for a browser 3D maze game.
 
-Constraints:
+Tech stack:
 - TypeScript
+- Three.js
+- Vite
+
+Architecture constraints:
 - modular files
 - small functions
-- browser compatible
+- readable code
 
 Implementation plan:
 {plan}
 
-Return code for:
+Return code for these files:
 
 main.ts
 engine/GameLoop.ts
 engine/SceneManager.ts
 game/Player.ts
 
-Return each file in this format:
+Use this exact format:
 
-FILE: path/to/file.ts
-```ts
-code
+FILE: main.ts
+CODE_START
+<code here>
+CODE_END
 
+FILE: engine/GameLoop.ts
+CODE_START
+<code here>
+CODE_END
+"""
+
+    result = ask_llm(prompt)
+
+    parse_and_write_files(result)
+
+
+def parse_and_write_files(text):
+
+    pattern = r"FILE:\s*(.*?)\s*CODE_START(.*?)CODE_END"
+    matches = re.findall(pattern, text, re.S)
+
+    for file_path, code in matches:
+
+        path = GAME_SRC / file_path.strip()
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        path.write_text(code.strip(), encoding="utf-8")
+
+        print("Written:", path)
