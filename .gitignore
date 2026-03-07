@@ -1,0 +1,23 @@
+# node
+node_modules
+dist
+build
+
+# vite
+.vite
+
+# python
+.venv
+__pycache__
+*.pyc
+
+# logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# playwright
+playwright-report
+test-results
