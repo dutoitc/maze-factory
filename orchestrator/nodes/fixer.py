@@ -30,6 +30,11 @@ CODE_END
 
     result = ask_llm(prompt)
 
+
+    print("\n===== FIXER RESPONSE =====\n")
+    print(result)
+    print("\n==========================\n")
+
     apply_patch(result)
 
 
@@ -45,6 +50,7 @@ def apply_patch(text):
         path = GAME_PATH / file_path.strip()
 
         if path.exists():
+            print("Attempt patch:", file_path)
 
             path.write_text(code.strip(), encoding="utf-8")
 

@@ -1,23 +1,24 @@
 ```typescript
+import { SceneManager } from './SceneManager';
+
 export class GameLoop {
-  private entities: any[] = [];
-  private running: boolean = false;
+  private sceneManager: SceneManager;
 
-  public addEntity(entity: any) {
-    this.entities.push(entity);
+  constructor(sceneManager: SceneManager) {
+    this.sceneManager = sceneManager;
   }
 
-  public start() {
-    this.running = true;
-    this.animate();
+  public start(): void {
+    requestAnimationFrame(() => this.update());
   }
 
-  private animate() {
-    if (!this.running) return;
+  private update(): void {
+    this.sceneManager.update();
+    requestAnimationFrame(() => this.update());
+  }
 
-    requestAnimationFrame(() => this.animate());
-
-    this.entities.forEach(entity => entity.update());
+  public stop(): void {
+    cancelAnimationFrame(this.animationFrameId);
   }
 }
 ```

@@ -1,105 +1,112 @@
-Certainly! Below are some minimal Vitest tests for a maze game. This example assumes you have a simple maze game with the following structure:
+To create minimal Vitest tests for a maze game, you need to set up a basic maze generation function and a player movement function. Below is an example of how you can write these tests:
 
-1. `maze.js` - Contains the maze generation and player movement logic.
-2. `maze.test.js` - Contains the tests for the maze generation and player movement.
-
-### maze.js
+First, create a file named `mazeGame.js` for your maze game logic:
 
 ```javascript
-// maze.js
-export class Maze {
-  constructor(width, height) {
-    this.width = width;
-    this.height = height;
-    this.grid = this.generateGrid();
-  }
+// mazeGame.js
 
-  generateGrid() {
-    // Simple maze generation (e.g., random walls)
-    return Array.from({ length: this.height }, () => 
-      Array(this.width).fill(0).map(() => Math.random() > 0.5 ? 1 : 0)
-    );
-  }
-
-  movePlayer(direction) {
-    // Simple player movement logic
-    // Assuming player starts at (0, 0) and can only move right or down
-    let [x, y] = [0, 0];
-    if (direction === 'right' && x < this.width - 1 && this.grid[y][x + 1] === 0) {
-      x++;
-    } else if (direction === 'down' && y < this.height - 1 && this.grid[y + 1][x] === 0) {
-      y++;
-    }
-    return [x, y];
-  }
+// Function to generate a maze
+function generateMaze(width, height) {
+  const maze = Array.from({ length: height }, () => Array(width).fill('wall'));
+  // Simplified maze generation logic for demonstration
+  maze[0][0] = 'path'; // Starting point
+  maze[height - 1][width - 1] = 'exit'; // Exit point
+  return maze;
 }
+
+// Function to move the player in the maze
+function movePlayer(maze, direction) {
+  const playerPosition = findPlayer(maze);
+  if (!playerPosition) return maze; // No player found
+
+  const [x, y] = playerPosition;
+  let newX = x, newY = y;
+
+  switch (direction) {
+    case 'up':
+      newY = y - 1;
+      break;
+    case 'down':
+      newY = y + 1;
+      break;
+    case 'left':
+      newX = x - 1;
+      break;
+    case 'right':
+      newX = x + 1;
+      break;
+    default:
+      return maze; // Invalid direction
+  }
+
+  if (newX >= 0 && newX < maze[0].length && newY >= 0 && newY < maze.length) {
+    if (maze[newY][newX] === 'path') {
+      maze[y][x] = 'path'; // Clear previous position
+      maze[newY][newX] = 'player'; // Move player to new position
+    }
+  }
+
+  return maze;
+}
+
+// Helper function to find the player's position
+function findPlayer(maze) {
+  for (let y = 0; y < maze.length; y++) {
+    for (let x = 0; x < maze[y].length; x++) {
+      if (maze[y][x] === 'player') {
+        return [x, y];
+      }
+    }
+  }
+  return null; // No player found
+}
+
+module.exports = {
+  generateMaze,
+  movePlayer
+};
 ```
 
-### maze.test.js
+Next, create a file named `mazeGame.test.js` for your tests:
 
 ```javascript
-// maze.test.js
-import { describe, it, expect } from 'vitest';
-import { Maze } from './maze';
+// mazeGame.test.js
 
-describe('Maze', () => {
-  describe('generateGrid', () => {
-    it('returns a grid with the specified dimensions', () => {
-      const maze = new Maze(3, 3);
-      expect(maze.grid).toBeInstanceOf(Array);
-      expect(maze.grid.length).toBe(3);
-      expect(maze.grid[0]).toBeInstanceOf(Array);
-      expect(maze.grid[0].length).toBe(3);
-    });
+import { generateMaze, movePlayer } from './mazeGame';
 
-    it('generates a grid with walls represented by 1 and paths by 0', () => {
-      const maze = new Maze(3, 3);
-      maze.grid.forEach(row => row.forEach(cell => {
-        expect(cell).toBe(0) || expect(cell).toBe(1);
-      }));
-    });
+describe('Maze Game', () => {
+  test('maze generation returns a grid', () => {
+    const maze = generateMaze(5, 5);
+    expect(maze).toBeInstanceOf(Array);
+    expect(maze.length).toBe(5);
+    expect(maze[0]).toBeInstanceOf(Array);
+    expect(maze[0].length).toBe(5);
   });
 
-  describe('movePlayer', () => {
-    it('updates player position when moving right', () => {
-      const maze = new Maze(3, 3);
-      const newPosition = maze.movePlayer('right');
-      expect(newPosition).toEqual([1, 0]);
-    });
+  test('player movement updates position', () => {
+    const maze = generateMaze(5, 5);
+    const initialPlayerPosition = findPlayer(maze);
+    expect(initialPlayerPosition).toEqual([0, 0]);
 
-    it('updates player position when moving down', () => {
-      const maze = new Maze(3, 3);
-      const newPosition = maze.movePlayer('down');
-      expect(newPosition).toEqual([0, 1]);
-    });
+    const movedMaze = movePlayer(maze, 'down');
+    const newPlayerPosition = findPlayer(movedMaze);
+    expect(newPlayerPosition).toEqual([0, 1]);
 
-    it('does not move player through walls', () => {
-      const maze = new Maze(3, 3);
-      maze.grid[0][1] = 1; // Block the path
-      const newPosition = maze.movePlayer('right');
-      expect(newPosition).toEqual([0, 0]);
-    });
+    const movedMazeLeft = movePlayer(movedMaze, 'left');
+    const newPlayerPositionLeft = findPlayer(movedMazeLeft);
+    expect(newPlayerPositionLeft).toEqual([0, 1]); // Player cannot move left
 
-    it('does not move player if already at the edge', () => {
-      const maze = new Maze(3, 3);
-      const newPosition = maze.movePlayer('right'); // Starting at [0, 0]
-      expect(newPosition).toEqual([1, 0]);
-      const newPosition2 = maze.movePlayer('right'); // Already at the edge
-      expect(newPosition2).toEqual([1, 0]);
-    });
+    const movedMazeUp = movePlayer(movedMaze, 'up');
+    const newPlayerPositionUp = findPlayer(movedMazeUp);
+    expect(newPlayerPositionUp).toEqual([0, 0]); // Player cannot move up
   });
 });
 ```
 
-### Explanation
+Finally, run the tests using Vitest:
 
-1. **generateGrid Test**:
-   - Checks if the grid has the correct dimensions.
-   - Verifies that the grid contains only 0s and 1s, representing paths and walls respectively.
+```bash
+npx vitest
+```
 
-2. **movePlayer Test**:
-   - Tests that the player moves correctly when moving right and down.
-   - Verifies that the player does not move through walls.
-   - Ensures that the player does not move beyond the maze boundaries.
-
-These tests provide a basic foundation for ensuring that your maze game's core functionality is working as expected.
+This setup will generate a simple maze, move the player, and check if the player's position is updated correctly. Adjust the maze generation logic and player movement logic as needed for your specific maze game requirements.

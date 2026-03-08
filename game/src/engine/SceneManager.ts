@@ -1,19 +1,15 @@
 ```typescript
-import * as THREE from 'three';
+import { Player } from '../game/Player';
 
 export class SceneManager {
-  public scene: THREE.Scene = new THREE.Scene();
-  public camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  public renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
+  private player: Player;
 
   constructor() {
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(this.renderer.domElement);
-    this.camera.position.z = 5;
+    this.player = new Player();
   }
 
-  public render() {
-    this.renderer.render(this.scene, this.camera);
+  public update(): void {
+    this.player.update();
   }
 }
 ```

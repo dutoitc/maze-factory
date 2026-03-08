@@ -13,4 +13,10 @@ def run_build():
         text=True
     )
 
-    return process.returncode, process.stdout + process.stderr
+    logs = process.stdout + "\n" + process.stderr
+
+    print("\n===== BUILD LOG =====\n")
+    print(logs)
+    print("\n=====================\n")
+
+    return process.returncode, logs
