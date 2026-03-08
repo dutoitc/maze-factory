@@ -1,16 +1,33 @@
 import subprocess
+import shutil
 
 from orchestrator.nodes.planner import run_planner
 from orchestrator.nodes.code_writer import run_code_writer
 from orchestrator.nodes.fixer import run_fixer
 
 
+def find_npm():
+    npm = shutil.which("npm")
+
+    if npm:
+        return npm
+
+    # fallback Windows
+    return r"C:\Program Files\nodejs\npm.cmd"
+
+
 def build():
+
+    npm = find_npm()
+
+    print("Using npm:", npm)
+
     result = subprocess.run(
-        ["npm", "run", "build"],
+        [npm, "run", "build"],
         cwd="game",
         capture_output=True,
-        text=True
+        text=True,
+        shell=False
     )
 
     return result.returncode, result.stdout + result.stderr

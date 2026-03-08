@@ -1,12 +1,14 @@
 ```typescript
-// main.ts
 import { GameLoop } from './engine/GameLoop';
+import { SceneManager } from './engine/SceneManager';
 import { Player } from './game/Player';
-import { Controls } from './game/Controls';
 
 const gameLoop = new GameLoop();
+const sceneManager = new SceneManager();
 const player = new Player();
-const controls = new Controls(player);
+
+gameLoop.addUpdateCallback(sceneManager.update);
+gameLoop.addRenderCallback(sceneManager.render);
 
 gameLoop.start();
 ```

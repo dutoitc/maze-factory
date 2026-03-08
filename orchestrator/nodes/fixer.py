@@ -1,4 +1,5 @@
 from orchestrator.models import ask_llm
+from orchestrator.nodes.repo_reader import read_repo
 from pathlib import Path
 import re
 
@@ -6,31 +7,34 @@ GAME_SRC = Path("game/src")
 
 
 def run_fixer(error_log: str):
+    repo = read_repo()
 
-    prompt = f"""
-You are a senior TypeScript developer working on a Three.js game.
+prompt = f"""
+You are a senior TypeScript developer.
 
 The project failed to build.
 
-Here are the errors:
-
+BUILD ERRORS
 {error_log}
+
+CURRENT CODEBASE
+{repo}
 
 Fix the files.
 
-Rules:
-- modify existing files only
-- keep fixes minimal
+Rules
+- modify existing files
 - return full files
 - paths must start with src/
 
 Format:
 
-FILE: src/engine/GameLoop.ts
+FILE: src/path/file.ts
 CODE_START
-<code>
+code
 CODE_END
 """
+
 
     result = ask_llm(prompt)
 

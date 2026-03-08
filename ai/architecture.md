@@ -1,117 +1,114 @@
-### Implementation Plan for Maze Game Prototype
+To create the first playable prototype of the maze game using Three.js with TypeScript and a modular architecture, while ensuring the code remains concise, follow these steps:
 
-#### Step 1: Setup the Project
-1. **Initialize a new TypeScript project**:
-   - Install Node.js and npm.
-   - Create a new folder for your project.
-   - Run `npm init -y` to create a `package.json` file.
-   - Install Three.js and TypeScript:
-     ```bash
-     npm install three
-     npm install --save-dev typescript
-     ```
+### Step 1: Set Up the Project
+1. **Initialize a new TypeScript project:**
+   ```bash
+   mkdir maze-game
+   cd maze-game
+   npm init -y
+   npm install three typescript ts-node
+   npx tsc --init
+   ```
 
-2. **Configure TypeScript**:
-   - Create a `tsconfig.json` file with the following settings:
-     ```json
-     {
-       "compilerOptions": {
-         "target": "ES5",
-         "module": "commonjs",
-         "strict": true,
-         "esModuleInterop": true,
-         "skipLibCheck": true,
-         "forceConsistentCasingInFileNames": true,
-         "outDir": "./dist"
-       },
-       "include": ["src/**/*.ts"],
-       "exclude": ["node_modules"]
-     }
-     ```
-
-#### Step 2: Set Up the Three.js Scene
-1. **Create the main entry file**:
-   - Create a `src/index.ts` file.
-   - Set up the basic Three.js scene, camera, and renderer.
-
-2. **Initialize the scene, camera, and renderer**:
+2. **Create the main entry file (`index.ts`):**
    ```typescript
+   // index.ts
+   import { MazeGame } from './MazeGame';
+
+   const game = new MazeGame();
+   game.init();
+   game.start();
+   ```
+
+3. **Create the `MazeGame` class (`MazeGame.ts`):**
+   ```typescript
+   // MazeGame.ts
    import * as THREE from 'three';
 
-   const scene = new THREE.Scene();
-   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-   const renderer = new THREE.WebGLRenderer();
-   renderer.setSize(window.innerWidth, window.innerHeight);
-   document.body.appendChild(renderer.domElement);
-   ```
+   export class MazeGame {
+       private scene: THREE.Scene;
+       private camera: THREE.PerspectiveCamera;
+       private renderer: THREE.WebGLRenderer;
+       private player: THREE.Mesh;
+       private maze: THREE.Mesh;
 
-3. **Set up the camera**:
-   ```typescript
-   camera.position.z = 5;
-   ```
+       constructor() {
+           this.scene = new THREE.Scene();
+           this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+           this.renderer = new THREE.WebGLRenderer();
+           this.renderer.setSize(window.innerWidth, window.innerHeight);
+           document.body.appendChild(this.renderer.domElement);
 
-4. **Create a simple maze grid**:
-   - Use planes to create the grid. For simplicity, let's assume a 5x5 grid.
+           this.player = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+           this.scene.add(this.player);
 
-5. **Create the player cube**:
-   - Use a `BoxGeometry` and `MeshBasicMaterial` for the player cube.
+           this.camera.position.z = 5;
+       }
 
-#### Step 3: Implement Player Movement
-1. **Handle WASD input**:
-   - Listen for keyboard events and update the player cube's position accordingly.
+       init(): void {
+           this.addMaze();
+           this.addControls();
+       }
 
-2. **Create a player object**:
-   ```typescript
-   const playerGeometry = new THREE.BoxGeometry(1, 1, 1);
-   const playerMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-   const player = new THREE.Mesh(playerGeometry, playerMaterial);
-   player.position.set(0, 0.5, 0);
-   scene.add(player);
-   ```
+       start(): void {
+           this.animate();
+       }
 
-3. **Update player position based on WASD input**:
-   ```typescript
-   function updatePlayer(input: string) {
-     switch (input) {
-       case 'W':
-         player.position.z -= 0.1;
-         break;
-       case 'A':
-         player.position.x -= 0.1;
-         break;
-       case 'S':
-         player.position.z += 0.1;
-         break;
-       case 'D':
-         player.position.x += 0.1;
-         break;
-     }
+       private addMaze(): void {
+           // Simple maze grid (2x2)
+           const mazeGeometry = new THREE.BoxGeometry(2, 2, 0.1);
+           this.maze = new THREE.Mesh(mazeGeometry, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+           this.scene.add(this.maze);
+       }
+
+       private addControls(): void {
+           window.addEventListener('keydown', (event) => this.handleKeyDown(event), false);
+       }
+
+       private handleKeyDown(event: KeyboardEvent): void {
+           const speed = 0.1;
+           switch (event.key) {
+               case 'w':
+                   this.player.position.z -= speed;
+                   break;
+               case 's':
+                   this.player.position.z += speed;
+                   break;
+               case 'a':
+                   this.player.position.x -= speed;
+                   break;
+               case 'd':
+                   this.player.position.x += speed;
+                   break;
+           }
+       }
+
+       private animate(): void {
+           requestAnimationFrame(() => this.animate());
+           this.renderer.render(this.scene, this.camera);
+       }
    }
-
-   document.addEventListener('keydown', (event) => {
-     updatePlayer(event.key.toUpperCase());
-   });
    ```
 
-#### Step 4: Render Loop
-1. **Create a render loop**:
-   ```typescript
-   function animate() {
-     requestAnimationFrame(animate);
-     renderer.render(scene, camera);
-   }
+### Explanation:
+1. **Initialization:**
+   - The `MazeGame` class initializes the scene, camera, and renderer.
+   - The player cube is created and added to the scene.
 
-   animate();
+2. **Maze Creation:**
+   - A simple 2x2 maze grid is created and added to the scene.
+
+3. **Controls:**
+   - Basic WASD controls are implemented to move the player cube.
+
+4. **Animation Loop:**
+   - The `animate` method is used to continuously render the scene.
+
+### Running the Project:
+1. **Compile and run the project:**
+   ```bash
+   npx tsc
+   npx ts-node dist/index.js
    ```
 
-#### Step 5: Final Touches
-1. **Add lighting**:
-   - Add a point light to illuminate the scene.
-
-2. **Optimize and package**:
-   - Ensure the code is modular and follows best practices.
-   - Compile the TypeScript code using `tsc`.
-   - Ensure the final bundle size does not exceed 300 lines.
-
-#### Summary
-This plan outlines the steps to create a simple maze game prototype using TypeScript and Three.js. The implementation is modular, and the final bundle size should be kept within the specified constraints. The project will include a basic maze grid, a player cube, and WASD movement controls.
+This setup provides a basic playable prototype of a maze game using Three.js with TypeScript. The project follows a modular architecture and is concise, meeting the constraints of max file size 300 lines.
