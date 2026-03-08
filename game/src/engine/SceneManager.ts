@@ -1,32 +1,39 @@
-```typescript
 import * as THREE from 'three';
-import { Player } from './game/Player';
+import { Player } from '../game/Player';
 
 export class SceneManager {
     private scene: THREE.Scene;
     private camera: THREE.PerspectiveCamera;
-    private renderer: THREE.WebGLRenderer;
     private player: Player;
+    private playerGeometry: THREE.BoxGeometry;
 
-    constructor() {
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.renderer = new THREE.WebGLRenderer();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(this.renderer.domElement);
-
-        this.player = new Player();
-        this.scene.add(this.player.mesh);
-
-        this.camera.position.z = 5;
+    constructor(scene: THREE.Scene, camera: THREE.PerspectiveCamera) {
+        this.scene = scene;
+        this.camera = camera;
     }
 
-    update(): void {
-        this.player.update(this.delta);
+    public setupMaze() {
+        const gridSize = 10;
+        const cellSize = 1;
+
+        const geometry = new THREE.BoxGeometry(cellSize, cellSize, cellSize);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const maze = [];
+
+        for (let x = 0; x < gridSize; x++) {
+            for (let y = 0; y < gridSize; y++) {
+                const cube = new THREE.Mesh(geometry, material);
+                cube.position.set(x * cellSize - gridSize / 2, y * cellSize - gridSize / 2, 0);
+                maze.push(cube);
+                this.scene.add(cube);
+            }
+        }
     }
 
-    render(): void {
-        this.renderer.render(this.scene, this.camera);
+    public setupPlayer() {
+        this.playerGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+        const playerMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        this.player = new Player(this.scene, playerMaterial, this.playerGeometry);
+        this.scene.add(this.player.mesh); // Add player to the scene
     }
 }
-```

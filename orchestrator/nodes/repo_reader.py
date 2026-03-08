@@ -1,18 +1,17 @@
 from pathlib import Path
 
+SRC = Path("game/src")
 
 def read_repo():
 
-    root = Path("game/src")
-
     files = []
 
-    for p in root.rglob("*.ts"):
+    for p in SRC.rglob("*.ts"):
         try:
-            content = p.read_text(encoding="utf-8")
+            code = p.read_text(encoding="utf-8")
         except:
             continue
 
-        files.append(f"\nFILE: {p}\n{content}\n")
+        files.append(f"\nFILE: {p}\n{code}\n")
 
     return "\n".join(files)

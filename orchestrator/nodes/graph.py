@@ -7,6 +7,7 @@ from orchestrator.nodes.fixer import run_fixer
 
 
 def find_npm():
+
     npm = shutil.which("npm")
 
     if npm:
@@ -18,8 +19,6 @@ def find_npm():
 def build():
 
     npm = find_npm()
-
-    print("Using npm:", npm)
 
     result = subprocess.run(
         [npm, "run", "build"],
@@ -45,19 +44,13 @@ def run_round():
 
         code, log = build()
 
-        print("\n===== BUILD LOG =====\n")
         print(log)
-        print("\n=====================\n")
 
         if code == 0:
             print("Build success")
             return
 
-        print("Build failed → fixing")
+        print("Fixing...")
         run_fixer(log)
 
-    print("Factory could not fix build")
-
-
-if __name__ == "__main__":
-    run_round()
+    print("Factory failed")

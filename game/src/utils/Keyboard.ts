@@ -1,6 +1,5 @@
-```typescript
-// Keyboard.ts
 import * as THREE from 'three';
+import { Player } from '../game/Player';
 
 export class Keyboard {
     private player: Player;
@@ -12,22 +11,36 @@ export class Keyboard {
 
     private setupKeyboardEvents() {
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'w') {
-                this.movePlayerForward();
-            } else if (event.key === 's') {
-                this.movePlayerBackward();
+            switch (event.key) {
+                case 'w':
+                    this.movePlayerForward();
+                    break;
+                case 's':
+                    this.movePlayerBackward();
+                    break;
+                case 'a':
+                    this.movePlayerLeft();
+                    break;
+                case 'd':
+                    this.movePlayerRight();
+                    break;
             }
         });
     }
 
     private movePlayerForward() {
-        const mesh = this.player.getMesh();
-        mesh.position.z -= 0.1;
+        this.player.getMesh().position.z -= this.player.speed;
     }
 
     private movePlayerBackward() {
-        const mesh = this.player.getMesh();
-        mesh.position.z += 0.1;
+        this.player.getMesh().position.z += this.player.speed;
+    }
+
+    private movePlayerLeft() {
+        this.player.getMesh().position.x -= this.player.speed;
+    }
+
+    private movePlayerRight() {
+        this.player.getMesh().position.x += this.player.speed;
     }
 }
-```

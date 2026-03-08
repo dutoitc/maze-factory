@@ -1,26 +1,29 @@
-```typescript
 import * as THREE from 'three';
 
 export class Player {
-    public mesh: THREE.Mesh;
+    private mesh: THREE.Mesh;
+    private speed = 0.1;
+    private moveLeft = new THREE.Vector3(-1, 0, 0);
+    private moveRight = new THREE.Vector3(1, 0, 0);
+    private moveUp = new THREE.Vector3(0, -1, 0);
+    private moveDown = new THREE.Vector3(0, 1, 0);
 
-    constructor() {
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        this.mesh = new THREE.Mesh(geometry, material);
+    constructor(scene: THREE.Scene, material: THREE.MeshBasicMaterial, geometry?: THREE.BoxGeometry) {
+        if (geometry) {
+            this.mesh = new THREE.Mesh(geometry, material);
+        } else {
+            const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+            this.mesh = new THREE.Mesh(geometry, material);
+        }
+        this.mesh.position.set(-5, -5, 0.25);
+        scene.add(this.mesh);
     }
 
-    public update(delta: number): void {
-        const speed = 0.1;
-        if (window.event?.key === 'w') {
-            this.mesh.position.z -= speed * delta;
-        } else if (window.event?.key === 's') {
-            this.mesh.position.z += speed * delta;
-        } else if (window.event?.key === 'a') {
-            this.mesh.position.x -= speed * delta;
-        } else if (window.event?.key === 'd') {
-            this.mesh.position.x += speed * delta;
-        }
+    public getMesh(): THREE.Mesh {
+        return this.mesh;
+    }
+
+    public update() {
+        // Event listeners are added in Controls class
     }
 }
-```
