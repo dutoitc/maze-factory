@@ -2,17 +2,15 @@ import subprocess
 
 from orchestrator.nodes.planner import run_planner
 from orchestrator.nodes.code_writer import run_code_writer
-from orchestrator.nodes.runner import run_tests
 from orchestrator.nodes.fixer import run_fixer
 
 
 def build():
-
     result = subprocess.run(
         ["npm", "run", "build"],
         cwd="game",
         capture_output=True,
-        text=True,
+        text=True
     )
 
     return result.returncode, result.stdout + result.stderr
@@ -43,9 +41,8 @@ def run_round():
         print("Build failed - fixing")
         run_fixer(log)
 
-    print("Factory could not fix")
+    print("Factory could not fix build automatically")
 
 
 if __name__ == "__main__":
     run_round()
-
