@@ -1,14 +1,33 @@
 ```typescript
+// Keyboard.ts
+import * as THREE from 'three';
+
 export class Keyboard {
-  private static pressed: { [key: string]: boolean } = {};
+    private player: Player;
 
-  public static listen(): void {
-    window.addEventListener('keydown', (e) => this.pressed[e.key] = true);
-    window.addEventListener('keyup', (e) => this.pressed[e.key] = false);
-  }
+    constructor(player: Player) {
+        this.player = player;
+        this.setupKeyboardEvents();
+    }
 
-  public static isPressed(key: string): boolean {
-    return this.pressed[key] || false;
-  }
+    private setupKeyboardEvents() {
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'w') {
+                this.movePlayerForward();
+            } else if (event.key === 's') {
+                this.movePlayerBackward();
+            }
+        });
+    }
+
+    private movePlayerForward() {
+        const mesh = this.player.getMesh();
+        mesh.position.z -= 0.1;
+    }
+
+    private movePlayerBackward() {
+        const mesh = this.player.getMesh();
+        mesh.position.z += 0.1;
+    }
 }
 ```

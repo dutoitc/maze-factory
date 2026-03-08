@@ -1,131 +1,60 @@
-Great! Let's start by setting up the basic structure of the project and writing the initial code files for the engine bootstrap, game loop, and scene creation.
+Sure! Let's start by creating the initial code files for the project. We'll focus on setting up the engine bootstrap, game loop, and scene creation.
 
-### Project Setup
+### Step 1: Project Setup
+First, ensure your project is initialized and all necessary dependencies are installed.
 
-1. **Initialize a new TypeScript project**:
-   ```sh
-   npm init -y
-   npm install typescript --save-dev
-   npm install three
-   npm install vite
-   ```
+```bash
+# Initialize a new TypeScript project
+npm init -y
+npm install three
+npm install --save-dev typescript
+```
 
-2. **Create a `tsconfig.json` file**:
-   ```json
-   {
-     "compilerOptions": {
-       "target": "ESNext",
-       "module": "ESNext",
-       "moduleResolution": "Node",
-       "strict": true,
-       "esModuleInterop": true,
-       "skipLibCheck": true,
-       "forceConsistentCasingInFileNames": true,
-       "outDir": "./dist"
-     },
-     "include": ["src"]
-   }
-   ```
+Create a `tsconfig.json` file with the following settings:
 
-3. **Create a `vite.config.ts` file**:
-   ```typescript
-   import { defineConfig } from 'vite';
-   import { svelte } from '@sveltejs/vite-plugin-svelte';
+```json
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+```
 
-   export default defineConfig({
-     plugins: [svelte()],
-     build: {
-       outDir: 'dist',
-       sourcemap: true
-     }
-   });
-   ```
+### Step 2: Create the `src` Directory and Files
+Create a `src` directory and add the following files:
 
-4. **Create an `index.html` file**:
-   ```html
-   <!DOCTYPE html>
-   <html lang="en">
-   <head>
-     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>Maze Game Prototype</title>
-     <style>
-       body { margin: 0; }
-       canvas { display: block; }
-     </style>
-   </head>
-   <body>
-     <script type="module" src="/src/main.ts"></script>
-   </body>
-   </html>
-   ```
+- `src/index.ts`
+- `src/scene.ts`
+- `src/camera.ts`
+- `src/player.ts`
 
-5. **Create a `src` directory and an `index.ts` file**:
-   ```sh
-   mkdir src
-   touch src/index.ts
-   ```
+### Step 3: Implement the Engine Bootstrap
+Open `src/index.ts` and set up the basic Three.js scene, camera, and renderer.
 
-### Initial Code for Engine Bootstrap, Game Loop, and Scene Creation
-
-#### TypeScript (src/index.ts)
 ```typescript
+// src/index.ts
 import * as THREE from 'three';
+import { Scene } from './scene';
+import { Camera } from './camera';
+import { Player } from './player';
 
-// Scene setup
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+const scene = new Scene();
+const camera = new Camera();
+const player = new Player();
 
-// Player cube
-const player = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-);
+scene.add(camera);
 scene.add(player);
 
-// Maze grid (simplified for example)
-const wallSize = 2;
-const mazeWidth = 10;
-const mazeHeight = 10;
-for (let x = 0; x <= mazeWidth; x++) {
-  for (let z = 0; z <= mazeHeight; z++) {
-    const wall = new THREE.Mesh(
-      new THREE.BoxGeometry(wallSize, wallSize, 1),
-      new THREE.MeshBasicMaterial({ color: 0x808080 })
-    );
-    wall.position.set(x * wallSize - mazeWidth / 2, wallSize / 2 - 0.5, z * wallSize - mazeHeight / 2);
-    scene.add(wall);
-  }
-}
+camera.position.z = 5;
 
-// Camera position
-camera.position.z = 10;
-
-// Player movement
-const moveSpeed = 0.1;
-const handleMovement = (event: KeyboardEvent) => {
-  switch (event.key) {
-    case 'w':
-      player.position.z -= moveSpeed;
-      break;
-    case 's':
-      player.position.z += moveSpeed;
-      break;
-    case 'a':
-      player.position.x -= moveSpeed;
-      break;
-    case 'd':
-      player.position.x += moveSpeed;
-      break;
-  }
-};
-
-document.addEventListener('keydown', handleMovement);
-
-// Render loop
 const animate = () => {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
@@ -134,33 +63,109 @@ const animate = () => {
 animate();
 ```
 
-### Explanation
+### Step 4: Set Up the Scene
+Open `src/scene.ts` and create a class to handle scene creation.
 
-1. **Scene Setup**:
-   - We create a basic Three.js scene, camera, and renderer.
-   - A player cube is added to the scene for the player.
-   - A simple maze grid is created using planes (walls).
+```typescript
+// src/scene.ts
+import * as THREE from 'three';
 
-2. **Player Movement**:
-   - We handle WASD movement for the player cube by listening for key presses and updating the cube's position.
+export class Scene {
+  private scene: THREE.Scene;
 
-3. **Render Loop**:
-   - A render loop is set up using `requestAnimationFrame` to continuously render the scene.
+  constructor() {
+    this.scene = new THREE.Scene();
+  }
 
-### Running the Project
+  add(object: THREE.Object3D): void {
+    this.scene.add(object);
+  }
 
-To run the project, you can use Vite:
+  getScene(): THREE.Scene {
+    return this.scene;
+  }
+}
+```
 
-1. **Install Vite**:
-   ```sh
-   npm install vite
-   ```
+### Step 5: Set Up the Camera
+Open `src/camera.ts` and create a class to handle camera creation.
 
-2. **Start the development server**:
-   ```sh
-   npx vite
-   ```
+```typescript
+// src/camera.ts
+import * as THREE from 'three';
 
-This will start a development server that you can access in your browser at `http://localhost:3000`. You should see a basic maze game with a player cube that can move using WASD keys.
+export class Camera {
+  private camera: THREE.PerspectiveCamera;
 
-Feel free to expand on this prototype by adding more features, optimizing performance, and refining the user experience!
+  constructor() {
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  }
+
+  getCamera(): THREE.PerspectiveCamera {
+    return this.camera;
+  }
+}
+```
+
+### Step 6: Create the Player
+Open `src/player.ts` and create a class to handle player creation.
+
+```typescript
+// src/player.ts
+import * as THREE from 'three';
+
+export class Player {
+  private player: THREE.Mesh;
+
+  constructor() {
+    const playerGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const playerMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    this.player = new THREE.Mesh(playerGeometry, playerMaterial);
+    this.player.position.set(0, 0.5, 0);
+  }
+
+  getPlayer(): THREE.Mesh {
+    return this.player;
+  }
+}
+```
+
+### Step 7: Initialize the Renderer
+Update `src/index.ts` to initialize the renderer and add lighting.
+
+```typescript
+// src/index.ts
+import * as THREE from 'three';
+import { Scene } from './scene';
+import { Camera } from './camera';
+import { Player } from './player';
+
+const scene = new Scene().getScene();
+const camera = new Camera().getCamera();
+const player = new Player().getPlayer();
+
+scene.add(camera);
+scene.add(player);
+
+camera.position.z = 5;
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const ambientLight = new THREE.AmbientLight(0x404040);
+scene.add(ambientLight);
+
+const pointLight = new THREE.PointLight(0xffffff, 0.5);
+pointLight.position.set(10, 10, 10);
+scene.add(pointLight);
+
+const animate = () => {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+};
+
+animate();
+```
+
+With these files in place, you have a basic setup for a Three.js scene with a player cube. The next step would be to implement the maze grid and player movement controls.

@@ -1,16 +1,21 @@
+import subprocess
+
 from orchestrator.nodes.planner import run_planner
-from orchestrator.nodes.builder import run_builder
 from orchestrator.nodes.code_writer import run_code_writer
-from orchestrator.nodes.test_writer import run_test_writer
-from orchestrator.nodes.runner import run_build
+from orchestrator.nodes.runner import run_tests
 from orchestrator.nodes.fixer import run_fixer
-from orchestrator.nodes.human_gate import human_validation
-from orchestrator.nodes.reviewer import run_reviewer
-import sys
-sys.stdout.reconfigure(encoding="utf-8")
 
 
-MAX_ITER = 5
+def build():
+
+    result = subprocess.run(
+        ["npm", "run", "build"],
+        cwd="game",
+        capture_output=True,
+        text=True,
+    )
+
+    return result.returncode, result.stdout + result.stderr
 
 
 def run_round():
@@ -18,38 +23,27 @@ def run_round():
     print("---- PLANNER ----")
     run_planner()
 
-    print("---- BUILDER ----")
-    run_builder()
-
     print("---- CODE WRITER ----")
     run_code_writer()
 
-    print("---- TEST WRITER ----")
-    run_test_writer()
+    for i in range(5):
 
-    for i in range(MAX_ITER):
+        print(f"---- BUILD ATTEMPT {i+1} ----")
 
-        print("---- BUILD ATTEMPT", i + 1, "----")
+        code, log = build()
 
-        code, logs = run_build()
+        print("\n===== BUILD LOG =====\n")
+        print(log)
+        print("\n=====================\n")
 
         if code == 0:
-            print("Build successful")
-            break
+            print("Build success")
+            return
 
         print("Build failed - fixing")
+        run_fixer(log)
 
-        run_fixer(logs)
-
-    else:
-        print("Factory could not fix build automatically")
-        return
-
-    decision = human_validation()
-
-    if decision == "GO":
-        run_reviewer()
-        print("Round complete")
+    print("Factory could not fix")
 
 
 if __name__ == "__main__":

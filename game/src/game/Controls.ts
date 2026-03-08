@@ -1,28 +1,33 @@
+```typescript
+// Controls.ts
 import * as THREE from 'three';
-import { Player } from "./Player"
 
 export class Controls {
-  private player: Player;
-  private keys: { [key: string]: boolean } = {};
+    private player: Player;
 
-  constructor(player: Player) {
-    this.player = player;
-    window.addEventListener('keydown', (event) => this.keys[event.key] = true);
-    window.addEventListener('keyup', (event) => this.keys[event.key] = false);
-  }
+    constructor(player: Player) {
+        this.player = player;
+        this.setupControls();
+    }
 
-  public update(delta: number): void {
-    if (this.keys['w']) {
-      this.player.move(0, delta, 0);
+    private setupControls() {
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'w') {
+                this.movePlayerForward();
+            } else if (event.key === 's') {
+                this.movePlayerBackward();
+            }
+        });
     }
-    if (this.keys['s']) {
-      this.player.move(0, -delta, 0);
+
+    private movePlayerForward() {
+        const mesh = this.player.getMesh();
+        mesh.position.z -= 0.1;
     }
-    if (this.keys['a']) {
-      this.player.move(-delta, 0, 0);
+
+    private movePlayerBackward() {
+        const mesh = this.player.getMesh();
+        mesh.position.z += 0.1;
     }
-    if (this.keys['d']) {
-      this.player.move(delta, 0, 0);
-    }
-  }
 }
+```

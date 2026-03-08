@@ -12,33 +12,23 @@ You are a senior TypeScript developer working on a Three.js game.
 
 The project failed to build.
 
-Here are the build errors:
+Here are the errors:
 
 {error_log}
 
-Your job is to fix the code.
+Fix the files.
 
 Rules:
-- Only modify existing files
-- Do not invent new architecture
-- Keep fixes minimal
-- Use consistent casing for file names
-- Imports must match the real file name
+- modify existing files only
+- keep fixes minimal
+- return full files
+- paths must start with src/
 
-Return FULL corrected files.
-
-Use EXACT paths relative to src/.
-
-Example format:
+Format:
 
 FILE: src/engine/GameLoop.ts
 CODE_START
-<full corrected code>
-CODE_END
-
-FILE: src/game/Player.ts
-CODE_START
-<full corrected code>
+<code>
 CODE_END
 """
 
@@ -51,20 +41,35 @@ CODE_END
     apply_patch(result)
 
 
+def clean_code(code: str):
+
+    code = code.strip()
+
+    # remove markdown fences
+    if code.startswith("```"):
+        code = code.split("\n", 1)[1]
+
+    if code.endswith("```"):
+        code = code.rsplit("\n", 1)[0]
+
+    return code.strip()
+
+
 def apply_patch(text):
 
     pattern = r"FILE:\s*(.*?)\s*CODE_START(.*?)CODE_END"
     matches = re.findall(pattern, text, re.S)
 
     if not matches:
-        print("No patches detected from fixer.")
+        print("No patches detected")
         return
 
     for file_path, code in matches:
 
         clean_path = file_path.strip()
+        clean_path = clean_path.replace("**", "")
+        clean_path = clean_path.replace("`", "")
 
-        # enlever "src/" si présent
         if clean_path.startswith("src/"):
             clean_path = clean_path[4:]
 
@@ -74,7 +79,9 @@ def apply_patch(text):
 
         if path.exists():
 
-            path.write_text(code.strip(), encoding="utf-8")
+            cleaned = clean_code(code)
+
+            path.write_text(cleaned, encoding="utf-8")
 
             print("Patched:", path)
 
